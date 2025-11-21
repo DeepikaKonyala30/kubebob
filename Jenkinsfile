@@ -6,12 +6,13 @@ pipeline {
             steps {
                 script {
                     // Build and push Docker image
-                    bat 'docker build -t w9-dd-app:latest .'
-                    bat 'docker tag w9-dd-app:latest wilsonbolledula/w9-dh-app:latest'
-                    bat 'docker push wilsonbolledula/w9-dh-app:latest'
+                    bat 'docker build -t w9-dh-app:latest .'
+                    bat 'docker tag w9-dh-app:latest deepzz72206/w9-dh-app:latest'
+                    bat 'docker push deepzz72206/w9-dh-app:latest'
                 }
             }
         }
+
         stage('Test') {
             steps {
                 script {
@@ -19,24 +20,18 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy') {
             steps {
                 script {
-                    // Delete and start Minikube cluster
-                    bat 'minikube delete'
-                    bat 'minikube start'
-                    
-                    // Enable the dashboard addon
-                    bat 'minikube addons enable dashboard'
-                    
+                    // Ensure kubectl is pointing to Docker Desktop's cluster
+                    bat 'kubectl config use-context docker-desktop'
+
                     // Apply Kubernetes resources
                     bat 'kubectl apply -f my-kube1-deployment.yaml'
                     bat 'kubectl apply -f my-kube1-service.yaml'
-                    
-                    // Expose the Kubernetes Dashboard service
-                    bat 'minikube dashboard'
-                    
-                    echo 'Deploying application...'
+
+                    echo 'Deploying application to Docker Desktop Kubernetes...'
                 }
             }
         }
